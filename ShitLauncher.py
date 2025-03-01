@@ -1,7 +1,6 @@
 import os
 import sys
 import requests
-import zipfile
 from datetime import datetime, timezone
 
 
@@ -43,7 +42,8 @@ def main():
 
         if exe_mod_time < zip_file_date:
             print("🔄 Update needed")
-            os.rmdir(dir_builds)
+            import shutil
+            shutil.rmtree(dir_builds)
             update = True
         else:
             print("✅ No update needed")
@@ -62,6 +62,7 @@ def main():
 
         print(f"📦 Extracting {path_zip} to {dir_builds}")
 
+        import zipfile
         with zipfile.ZipFile(path_zip, 'r') as zip_ref:
             zip_ref.extractall(dir_builds)
 
@@ -77,7 +78,6 @@ if __name__ == "__main__":
     try:
         main()
     except Exception as e:
-        print(f"Error: {e}")
-        print(e.with_traceback())
+        import traceback
+        traceback.print_exc()
         input("Press Enter to exit")
-        sys.throw(e)
