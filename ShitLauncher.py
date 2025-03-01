@@ -70,6 +70,8 @@ def main():
     print(f"🚀 Launching {path_exe}")
     os.startfile(path_exe)
 
+    input("Press Enter to exit")
+
 
 if __name__ == "__main__":
     main()
