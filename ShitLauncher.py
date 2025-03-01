@@ -50,18 +50,24 @@ def main():
         os.makedirs(dir_builds)
 
         path_zip = os.path.join(os.path.dirname(__file__), "temp.zip")
-        with requests.get(url_builds + "/" + build_index['name'], stream=True) as r:
+        url_build = url_builds + "/" + build_index['name']
+
+        print(f"🔗 GET {url_build},n📦 Downloading {build_index['name']} to {path_zip}")
+        with requests.get(url_build, stream=True) as r:
             with open(path_zip, 'wb') as f:
                 for chunk in r.iter_content(chunk_size=8192):
                     f.write(chunk)
 
+        print(f"📦 Extracting {path_zip} to {dir_builds}")
+
         with zipfile.ZipFile(path_zip, 'r') as zip_ref:
             zip_ref.extractall(dir_builds)
 
-        # delete the zip
+        print(f"🗑️ Removing {path_zip}")
         os.remove(path_zip)
 
-    # launch the executable
+    path_exe = os.path.join(dir_builds, os.listdir(dir_builds)[0], "SHITSTORM.exe")
+    print(f"🚀 Launching {path_exe}")
     os.startfile(path_exe)
 
 
