@@ -22,7 +22,8 @@ def main():
     builds_index = response.json()
     print(f"📦 {len(builds_index)} builds found:\n", builds_index)
 
-    zip_file_date = datetime.strptime(builds_index[0]['mtime'], "%a, %d %b %Y %H:%M:%S GMT").replace(tzinfo=timezone.utc)
+    build_index = builds_index[0]
+    zip_file_date = datetime.strptime(build_index['mtime'], "%a, %d %b %Y %H:%M:%S GMT").replace(tzinfo=timezone.utc)
     print(f"📅 Latest build: {zip_file_date}")
 
     update = False
@@ -45,26 +46,20 @@ def main():
         else:
             print("✅ No update needed")
 
-    return
-
     if update:
         os.makedirs(dir_builds)
 
-        # download the zip from the server, into a TEMP folder,
-        temp_zip_path = os.path.join(os.path.dirname(__file__), "TEMP.zip")
-        with requests.get(url_builds + "/latest.zip", stream=True) as r:
-            with open(temp_zip_path, 'wb') as f:
+        path_zip = os.path.join(os.path.dirname(__file__), "temp.zip")
+        with requests.get(url_builds + "/" + build_index['name'], stream=True) as r:
+            with open(path_zip, 'wb') as f:
                 for chunk in r.iter_content(chunk_size=8192):
                     f.write(chunk)
 
-        # delete the "builds" folder, recreate it and extract the zip content into it
-        os.rmdir(dir_builds)
-        os.makedirs(dir_builds)
-        with zipfile.ZipFile(temp_zip_path, 'r') as zip_ref:
+        with zipfile.ZipFile(path_zip, 'r') as zip_ref:
             zip_ref.extractall(dir_builds)
 
         # delete the zip
-        os.remove(temp_zip_path)
+        os.remove(path_zip)
 
     # launch the executable
     os.startfile(path_exe)
