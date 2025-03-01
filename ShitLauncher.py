@@ -1,4 +1,5 @@
 import os
+import sys
 import requests
 import zipfile
 from datetime import datetime, timezone
@@ -7,7 +8,8 @@ from datetime import datetime, timezone
 url_paragon = "https://www.shitstorm.ovh"
 url_builds = url_paragon + "/builds"
 
-dir_root = os.path.dirname(__file__)
+path_exe = os.path.abspath(sys.argv[0])
+dir_root = os.path.dirname(path_exe)
 dir_builds = os.path.join(dir_root, "builds")
 
 
@@ -70,14 +72,6 @@ def main():
     print(f"🚀 Launching {path_exe}")
     os.startfile(path_exe)
 
-    input("Press Enter to exit")
-
 
 if __name__ == "__main__":
-
-    print(dir_root)
-    print(dir_builds)
-
-    input("Press Enter to continue")
-
-    # main()
+    main()
