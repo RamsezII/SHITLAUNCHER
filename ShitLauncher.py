@@ -69,7 +69,6 @@ def main():
         print(f"🗑️ Removing {path_zip}")
         os.remove(path_zip)
 
-    path_exe = os.path.join(dir_game, os.listdir(dir_game)[0], "SHITSTORM.exe")
     print(f"🚀 Launching {path_exe}")
     os.startfile(path_exe)
 
