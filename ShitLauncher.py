@@ -74,4 +74,10 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+
+    print(dir_root)
+    print(dir_builds)
+
+    input("Press Enter to continue")
+
+    # main()
