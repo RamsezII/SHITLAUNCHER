@@ -8,7 +8,7 @@ from scripts.Util import *
 def check_build():
 
     url_build = URL_PARAGON + "/builds"
-    dir_game = os.path.join(DIR_ROOT, "game")
+    dir_game = os.path.join(ROOT_DIR, "SHITSTORM_standalone")
 
     print(f"🔗 GET {url_build}")
     response = requests.get(url_build, timeout=5)
@@ -47,7 +47,7 @@ def check_build():
     if update:
         os.makedirs(dir_game)
 
-        path_zip = os.path.join(DIR_ROOT, "temp.zip")
+        path_zip = os.path.join(ROOT_DIR, "temp.zip")
         url_build = url_build + "/" + name_zip
 
         print(f"🔗 GET {url_build},n📦 Downloading {name_zip} to {path_zip}")
