@@ -21,7 +21,7 @@
             font-family: Impact, sans-serif;
             font-size: 15em;
             font-weight: bold;
-            letter-spacing: 5px;
+            letter-spacing: 10px;
             background: linear-gradient(to bottom, white, black);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
@@ -34,14 +34,11 @@
             padding: 5px 50px;
             text-decoration: none;
             font-size: 2em;
-            /* transition: background 0.15s ease, color 0.2s ease; */
-            /* transition: transform 0.1s ease; */
         }
 
         .main-link:hover {
             background: white;
             color: black;
-            /* transform: scale(1.1); */
         }
 
         .social-icons {
@@ -58,11 +55,15 @@
         .social-icons img {
             width: 50px;
             height: 50px;
-            transition: transform 0.1s ease;
+            opacity: 0.8;
+            /* Add this line to make the icons slightly grayed out */
+            transition: transform 0.1s ease, opacity 0.1s ease;
         }
 
         .social-icons img:hover {
             transform: scale(1.1);
+            opacity: 1;
+            /* Add this line to restore full opacity on hover */
         }
     </style>
 </head>
