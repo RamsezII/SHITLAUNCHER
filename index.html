@@ -39,12 +39,46 @@
             background: white;
             color: black;
         }
+
+        .social-icons {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 30px;
+        }
+
+        .social-icons a {
+            text-decoration: none;
+        }
+
+        .social-icons img {
+            width: 50px;
+            height: 50px;
+            transition: transform 0.3s ease;
+        }
+
+        .social-icons img:hover {
+            transform: scale(1.2);
+        }
     </style>
 </head>
 
 <body>
     <h1>SHIT$TORM</h1>
+
     <a href="https://shitstorm.ovh/launchers/SHITLAUNCHER.exe" download>Download ShitLauncher</a>
+
+    <div class="social-icons">
+        <a href="https://discord.gg/MWhZSh2Pn8" target="_blank">
+            <img src="https://img.icons8.com/ios-filled/50/ffffff/discord.png" alt="Discord">
+        </a>
+        <a href="https://github.com/RamsezII" target="_blank">
+            <img src="https://img.icons8.com/ios-filled/50/ffffff/github.png" alt="GitHub">
+        </a>
+        <a href="https://www.youtube.com/@_SHITSTORM_" target="_blank">
+            <img src="https://img.icons8.com/ios-filled/50/ffffff/youtube-play.png" alt="YouTube">
+        </a>
+    </div>
 </body>
 
 </html>
