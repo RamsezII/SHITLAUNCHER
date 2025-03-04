@@ -2,7 +2,7 @@ from datetime import datetime, timezone
 import os
 import requests
 
-from scripts.Util import *
+from launcher.Util import *
 
 
 def check_build():

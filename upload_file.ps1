@@ -1,8 +1,6 @@
 param (
-    [string]$fileName,
+    [string]$localPath,
     [string]$remotePath
 )
 
-$command = "scp $fileName debian@www.shitstorm.ovh:/var/www/paragon/$remotePath"
-
-Invoke-Command -ScriptBlock { & $using:command }
+scp $localPath "debian@www.shitstorm.ovh:/var/www/paragon/$remotePath"

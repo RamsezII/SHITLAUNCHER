@@ -2,7 +2,7 @@ from datetime import datetime, timezone
 
 import requests
 
-from scripts.Util import *
+from launcher.Util import *
 
 
 updater_suffixe = "_update.exe"

@@ -1,5 +1,5 @@
 
-from scripts import check_launcher, check_build
+from launcher import check_launcher, check_build
 
 
 if __name__ == "__main__":
