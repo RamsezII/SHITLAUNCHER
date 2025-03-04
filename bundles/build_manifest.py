@@ -20,7 +20,7 @@ if __name__ == "__main__":
         bundle_path = os.path.join(root_dir, bundle_name)
 
         if os.path.isdir(bundle_path):
-            print('bundle: ', bundle_name)
+            print('\t' + bundle_name)
             manifest_bundle = {}
 
             zip_path = os.path.join(bundle_path, "texts.zip")
@@ -35,12 +35,12 @@ if __name__ == "__main__":
                 asset_path = os.path.join(extract_dir, asset_name)
 
                 if os.path.isdir(asset_path):
-                    print('\tasset: ' + asset_name)
+                    print('\t\t' + asset_name)
                     manifest_asset = []
 
                     for text_name in os.listdir(asset_path):
                         if text_name.endswith('.txt'):
-                            print('\t\ttext: ' + text_name)
+                            print('\t\t\t' + text_name)
                             manifest_asset.append(text_name)
 
                     manifest_bundle[asset_name] = manifest_asset
