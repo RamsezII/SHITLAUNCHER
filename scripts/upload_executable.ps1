@@ -1,5 +1,5 @@
 # Define variables
-$localFilePath = "dist/SHITLAUNCHER.exe"
+$localFilePath = "../dist/SHITLAUNCHER.exe"
 $remoteFilePath = "debian@www.shitstorm.ovh:/var/www/paragon/launchers/SHITLAUNCHER.exe"
 
 # Upload the file using SCP
