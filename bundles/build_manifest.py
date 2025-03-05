@@ -22,7 +22,7 @@ if __name__ == "__main__":
         if os.path.isdir(bundle_path):
             print(' . ' + bundle_name)
 
-            zip_path = os.path.join(bundle_path, "texts.zip")
+            zip_path = os.path.join(bundle_path, bundle_name + "_texts.zip")
             extract_dir = os.path.join(temp_folder, bundle_name)
             if not os.path.exists(extract_dir):
                 os.makedirs(extract_dir)
