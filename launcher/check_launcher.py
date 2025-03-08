@@ -20,7 +20,7 @@ def check_alt():
     os.remove(main_exe_path)
 
     main_exe_name = EXE_NAME[:-len(updater_suffixe)] + ".exe"
-    url_launcher_exe = URL_PARAGON + "/" + main_exe_name
+    url_launcher_exe = URL_PARAGON + "/launchers/" + main_exe_name
     print(f"🔗 GET {url_launcher_exe}")
     response = requests.get(url_launcher_exe, timeout=5)
 
@@ -39,8 +39,9 @@ def check_launcher():
 
     local_date = datetime.fromtimestamp(os.path.getmtime(EXE_PATH), timezone.utc)
 
-    print(f"🔗 GET {URL_PARAGON}")
-    response = requests.get(URL_PARAGON, timeout=5)
+    url_launcher_dir = URL_PARAGON + "/launchers"
+    print(f"🔗 GET {url_launcher_dir}")
+    response = requests.get(url_launcher_dir, timeout=5)
 
     if response.status_code != 200:
         print(f"Error: {response.status_code}")
