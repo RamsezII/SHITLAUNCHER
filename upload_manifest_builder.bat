@@ -1,6 +1,6 @@
 @echo off
 
-scp icon.ico index.html debian@shitstorm.ovh:/var/www/paragon || (
+scp bundles/build_manifest.py debian@shitstorm.ovh:/var/www/paragon/bundles/build_manifest.py || (
     echo An error occurred during the file upload.
     echo Error details:
     echo %errorlevel%
