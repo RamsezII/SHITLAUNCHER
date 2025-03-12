@@ -5,7 +5,7 @@ setlocal
 set LAUNCHER_NAME=%~nx0
 set LOCAL_LAUNCHER=%~dp0%~nx0
 
-set URL_INDEX=https://shitstorm.ovh/launchers
+set URL_INDEX_LAUNCHERS=https://shitstorm.ovh/launchers
 set URL_LAUNCHER=https://shitstorm.ovh/launchers/%LAUNCHER_NAME%
 
 set TEMP_INDEX_LAUNCHERS=%TEMP%\index_launchers.json
@@ -13,7 +13,7 @@ set TEMP_LAUNCHER=%TEMP%\%LAUNCHER_NAME%
 
 :: Download the JSON index from the server
 echo Checking remote launcher...
-curl -s -L -o "%TEMP_INDEX_LAUNCHERS%" "%URL_INDEX%"
+curl -s -L -o "%TEMP_INDEX_LAUNCHERS%" "%URL_INDEX_LAUNCHERS%"
 if %errorlevel% neq 0 (
     echo Failed to download JSON index.
     pause
@@ -69,10 +69,10 @@ exit
 :CHECK_BUILD
 
 :: Download the JSON index from nginx
-set URL_NGINX_INDEX=https://shitstorm.ovh/builds
+set URL_INDEX_BUILDS=https://shitstorm.ovh/builds
 set URL_BUILD=https://shitstorm.ovh/builds/SHITSTORM.zip
 
-set TEMP_NGINX_INDEX=%TEMP%\nginx_index.json
+set TEMP_INDEX_BUILDS=%TEMP%\index_builds.json
 set TEMP_ZIP=%TEMP%\SHITSTORM.zip
 
 set LOCAL_INSTALL_DIR=%~dp0SHITSTORM_install
@@ -83,7 +83,7 @@ set LOCAL_BUILD_EXE=%LOCAL_BUILD_DIR%\SHITSTORM.exe
 if not exist "%LOCAL_BUILD_EXE%" goto UPDATE_BUILD
 
 :: Extract the local file's modification date (GMT format)
-for /f "delims=" %%i in ('powershell -Command "(Get-Item '%LOCAL_BUILD_EXE%').LastWriteTimeUtc.ToString('R')"') do set LOCAL_BUILD_DATE=%%i
+for /f "delims=" %%i in ('powershell -Command "(Get-Item '%LOCAL_BUILD_DIR%').LastWriteTimeUtc.ToString('R')"') do set LOCAL_BUILD_DATE=%%i
 if %errorlevel% neq 0 (
     echo Failed to extract local build date.
     pause
@@ -91,7 +91,8 @@ if %errorlevel% neq 0 (
 )
 echo Local build: %LOCAL_BUILD_DATE%.
 
-curl -s -L -o "%TEMP_NGINX_INDEX%" "%URL_NGINX_INDEX%"
+echo Checking remote build... (%URL_INDEX_BUILDS%)
+curl -s -L -o "%TEMP_INDEX_BUILDS%" "%URL_INDEX_BUILDS%"
 if %errorlevel% neq 0 (
     echo Failed to download JSON index for build.
     pause
@@ -99,7 +100,7 @@ if %errorlevel% neq 0 (
 )
 
 :: Extract the "mtime" date from the JSON (PowerShell)
-for /f "delims=" %%i in ('powershell -Command "$json = Get-Content -Raw '%TEMP_NGINX_INDEX%' | ConvertFrom-Json; $json | Where-Object { $_.name -eq 'SHITSTORM.zip' } | Select-Object -ExpandProperty mtime"') do set REMOTE_BUILD_DATE=%%i
+for /f "delims=" %%i in ('powershell -Command "$json = Get-Content -Raw '%TEMP_INDEX_BUILDS%' | ConvertFrom-Json; $json | Where-Object { $_.name -eq 'SHITSTORM.zip' } | Select-Object -ExpandProperty mtime"') do set REMOTE_BUILD_DATE=%%i
 if %errorlevel% neq 0 (
     echo Failed to extract remote build date.
     pause
@@ -114,7 +115,17 @@ echo No update needed. Local build is up to date.
 goto LAUNCH_BUILD
 
 :UPDATE_BUILD
-echo New build detected! Downloading...
+echo New build detected!
+pause
+echo Downloading... (%URL_BUILD%)
+curl -s -L -o "%TEMP_ZIP%" "%URL_BUILD%"
+if %errorlevel% neq 0 (
+    echo Failed to download new build.
+    pause
+    exit /b %errorlevel%
+)
+echo Downloaded new build.
+
 echo Removing old build... %LOCAL_BUILD_DIR%
 pause
 if exist "%LOCAL_BUILD_DIR%" (
@@ -127,14 +138,6 @@ if exist "%LOCAL_BUILD_DIR%" (
         exit /b %errorlevel%
     )
 )
-
-curl -s -L -o "%TEMP_ZIP%" "%URL_BUILD%"
-if %errorlevel% neq 0 (
-    echo Failed to download new build.
-    pause
-    exit /b %errorlevel%
-)
-echo Downloaded new build.
 
 :: Create the build directory if it doesn't exist
 if not exist "%LOCAL_BUILD_DIR%" (
