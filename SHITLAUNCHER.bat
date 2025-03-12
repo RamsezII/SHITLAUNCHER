@@ -11,6 +11,7 @@ set URL_LAUNCHER=https://shitstorm.ovh/launchers/%LAUNCHER_NAME%
 set TEMP_INDEX_LAUNCHERS=%TEMP%\index_launchers.json
 set TEMP_LAUNCHER=%TEMP%\%LAUNCHER_NAME%
 
+
 :: Download the JSON index from the server
 echo Checking remote launcher...
 curl -s -L -o "%TEMP_INDEX_LAUNCHERS%" "%URL_INDEX_LAUNCHERS%"
@@ -48,21 +49,14 @@ echo No update needed. Local launcher is up to date.
 goto CHECK_BUILD
 
 :UPDATE_LAUNCHER
-echo New version detected! Downloading...
-curl -s -L -o "%TEMP_LAUNCHER%" "%URL_LAUNCHER%"
+echo Launcher update needed, downloading...
+curl -s -L -o "%LOCAL_LAUNCHER%" "%URL_LAUNCHER%"
 if %errorlevel% neq 0 (
-    echo Failed to download new launcher.
+    echo Failed to update launcher.
     pause
     exit /b %errorlevel%
 )
-move /y "%TEMP_LAUNCHER%" "%LOCAL_LAUNCHER%"
-if %errorlevel% neq 0 (
-    echo Failed to move new launcher.
-    pause
-    exit /b %errorlevel%
-)
-echo Update completed.
-echo Launching updated launcher...
+echo Update completed. Restarting launcher...
 start "" "%LOCAL_LAUNCHER%"
 exit
 
@@ -116,7 +110,6 @@ goto LAUNCH_BUILD
 
 :UPDATE_BUILD
 echo New build detected!
-pause
 echo Downloading... (%URL_BUILD%)
 curl -s -L -o "%TEMP_ZIP%" "%URL_BUILD%"
 if %errorlevel% neq 0 (
@@ -126,14 +119,11 @@ if %errorlevel% neq 0 (
 )
 echo Downloaded new build.
 
-echo Removing old build... %LOCAL_BUILD_DIR%
-pause
 if exist "%LOCAL_BUILD_DIR%" (
-    echo 🗑️ Suppression de %LOCAL_BUILD_DIR%...
+    echo Removing old build directory... %LOCAL_BUILD_DIR%
     rmdir /s /q "%LOCAL_BUILD_DIR%"
     if %errorlevel% neq 0 (
-        echo Error deleting the directory.
-        echo Code erreur : %errorlevel%
+        echo Error deleting the directory, code: %errorlevel%
         pause
         exit /b %errorlevel%
     )
@@ -141,7 +131,7 @@ if exist "%LOCAL_BUILD_DIR%" (
 
 :: Create the build directory if it doesn't exist
 if not exist "%LOCAL_BUILD_DIR%" (
-    echo Creating build directory...
+    echo Creating new build directory...
     mkdir "%LOCAL_BUILD_DIR%"
     if %errorlevel% neq 0 (
         echo Failed to create build directory.
@@ -158,7 +148,7 @@ if %errorlevel% neq 0 (
     exit /b %errorlevel%
 )
 echo build update completed.
-pause
+
 
 :LAUNCH_BUILD
 :: Launch the updated build
