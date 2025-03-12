@@ -1,0 +1,3 @@
+scp SHITLAUNCHER.bat debian@shitstorm.ovh:/var/www/paragon/launchers/SHITLAUNCHER.bat
+echo Press any key to exit...
+pause >nul
