@@ -8,7 +8,15 @@ from launcher.Util import *
 def check_build():
 
     url_build = URL_PARAGON + "/builds"
-    dir_game = os.path.join(ROOT_DIR, "SHITSTORM_standalone")
+
+    dir_game_OLD = os.path.join(ROOT_DIR, "SHITSTORM_standalone")
+    if os.path.exists(dir_game_OLD):
+        print(f"🗑️ Removing {dir_game_OLD}")
+        import shutil
+        shutil.rmtree(dir_game_OLD)
+
+    dir_install = os.path.join(ROOT_DIR, "SHITSTORM_install")
+    dir_game = os.path.join(dir_install, "SHITSTORM_standalone")
 
     print(f"🔗 GET {url_build}")
     response = requests.get(url_build, timeout=5)
@@ -22,11 +30,11 @@ def check_build():
 
     build_index = builds_index[0]
     name_zip = build_index['name']
-    path_exe = os.path.join(dir_game, "SHITSTORM.exe")
     zip_file_date = datetime.strptime(build_index['mtime'], "%a, %d %b %Y %H:%M:%S GMT").replace(tzinfo=timezone.utc)
     print(f"📅 Latest build: {zip_file_date}")
 
     update = False
+    path_exe = os.path.join(dir_game, "SHITSTORM.exe")
 
     if not os.path.exists(dir_game):
         print("📂 Folder not found:", dir_game)
