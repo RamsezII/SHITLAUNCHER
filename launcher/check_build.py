@@ -7,14 +7,20 @@ from launcher.Util import *
 
 def check_build():
 
+    dir_install = os.path.join(ROOT_DIR, "SHITSTORM_install")
+    dir_game = os.path.join(dir_install, "Standalone")
+
     dir_game_OLD = os.path.join(ROOT_DIR, "SHITSTORM_standalone")
     if os.path.exists(dir_game_OLD):
         print(f"🗑️ Removing {dir_game_OLD}")
         import shutil
         shutil.rmtree(dir_game_OLD)
 
-    dir_install = os.path.join(ROOT_DIR, "SHITSTORM_install")
-    dir_game = os.path.join(dir_install, "SHITSTORM_standalone")
+    dir_game_OLD = os.path.join(dir_install, "SHITSTORM_standalone")
+    if os.path.exists(dir_game_OLD):
+        print(f"🗑️ Removing {dir_game_OLD}")
+        import shutil
+        shutil.rmtree(dir_game_OLD)
 
     url_build = URL_PARAGON + "/builds"
     print(f"🔗 GET {url_build}")
