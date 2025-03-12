@@ -54,7 +54,7 @@ def check_build():
     if update:
         os.makedirs(dir_game)
 
-        path_zip = os.path.join(dir_install, "temp.zip")
+        path_zip = os.path.join(ROOT_DIR, "temp.zip")
         url_build = url_build + "/" + name_zip
 
         print(f"🔗 GET {url_build},n📦 Downloading {name_zip} to {path_zip}")
