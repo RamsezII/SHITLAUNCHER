@@ -79,7 +79,18 @@ set LOCAL_INSTALL_DIR=%~dp0SHITSTORM_install
 set LOCAL_BUILD_DIR=%LOCAL_INSTALL_DIR%\Standalone
 set LOCAL_BUILD_EXE=%LOCAL_BUILD_DIR%\SHITSTORM.exe
 
-echo Checking remote build...
+:: Check if the local file exists
+if not exist "%LOCAL_BUILD_EXE%" goto UPDATE_BUILD
+
+:: Extract the local file's modification date (GMT format)
+for /f "delims=" %%i in ('powershell -Command "(Get-Item '%LOCAL_BUILD_EXE%').LastWriteTimeUtc.ToString('R')"') do set LOCAL_BUILD_DATE=%%i
+if %errorlevel% neq 0 (
+    echo Failed to extract local build date.
+    pause
+    exit /b %errorlevel%
+)
+echo Local build: %LOCAL_BUILD_DATE%.
+
 curl -s -L -o "%TEMP_NGINX_INDEX%" "%URL_NGINX_INDEX%"
 if %errorlevel% neq 0 (
     echo Failed to download JSON index for build.
@@ -96,21 +107,7 @@ if %errorlevel% neq 0 (
 )
 echo Remote build: %REMOTE_BUILD_DATE%.
 
-:: Check if the local file exists
-if not exist "%LOCAL_BUILD_EXE%" goto UPDATE_BUILD
-
-:: Extract the local file's modification date (GMT format)
-for /f "delims=" %%i in ('powershell -Command "(Get-Item '%LOCAL_BUILD_EXE%').LastWriteTimeUtc.ToString('R')"') do set LOCAL_BUILD_DATE=%%i
-if %errorlevel% neq 0 (
-    echo Failed to extract local build date.
-    pause
-    exit /b %errorlevel%
-)
-echo Local build: %LOCAL_BUILD_DATE%.
-
 :: Compare dates
-echo Local build: %LOCAL_BUILD_DATE%
-echo Remote build: %REMOTE_BUILD_DATE%
 if "%REMOTE_BUILD_DATE%" GTR "%LOCAL_BUILD_DATE%" goto UPDATE_BUILD
 
 echo No update needed. Local build is up to date.
