@@ -76,6 +76,11 @@ goto LAUNCH_BUILD
 
 :UPDATE_BUILD
 echo New build version detected! Downloading...
+
+echo 🔍 Tentative de suppression : "%Dossier_à_supprimer%"
+if not exist "%Dossier_à_supprimer%" echo ❌ Le dossier n’existe pas !
+pause
+
 rmdir /s /q "%~dp0SHITSTORM_install\Standalone"
 echo Removed old build directory.
 curl -s -o "%TEMP_ZIP%" "%URL_BUILD%"
