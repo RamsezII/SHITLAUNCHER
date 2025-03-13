@@ -8,6 +8,8 @@ scp SHITLAUNCHER.bat debian@shitstorm.ovh:/var/www/paragon/launchers/SHITLAUNCHE
     pause >nul
 )
 
+if not exist TESTS mkdir TESTS
+
 copy SHITLAUNCHER.bat TESTS\SHITLAUNCHER.bat || (
     echo An error occurred during the file upload to TESTS.
     echo Error details:

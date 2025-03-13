@@ -28,7 +28,8 @@ if %errorlevel% neq 0 (
     pause
     exit /b %errorlevel%
 )
-echo Remote launcher: %REMOTE_DATE%.
+for /f "delims=" %%i in ('powershell -Command "[datetime]::Parse('%REMOTE_DATE%').ToFileTimeUtc()"') do set REMOTE_TS=%%i
+echo Remote launcher: %REMOTE_DATE% (timestamp: %REMOTE_TS%).
 
 :: Check if the local file exists
 if not exist "%LOCAL_LAUNCHER%" goto UPDATE_LAUNCHER
@@ -42,8 +43,11 @@ if %errorlevel% neq 0 (
 )
 
 :: Compare dates
-echo Local launcher: %LOCAL_DATE%
-if "%REMOTE_DATE%" GTR "%LOCAL_DATE%" goto UPDATE_LAUNCHER
+for /f "delims=" %%i in ('powershell -Command "[datetime]::Parse('%LOCAL_DATE%').ToFileTimeUtc()"') do set LOCAL_TS=%%i
+echo Local launcher: %LOCAL_DATE% (timestamp: %LOCAL_TS%).
+
+:: Comparer les timestamps
+if %REMOTE_TS% GTR %LOCAL_TS% goto UPDATE_LAUNCHER
 
 echo No update needed. Local launcher is up to date.
 goto CHECK_BUILD
@@ -84,6 +88,8 @@ if %errorlevel% neq 0 (
     exit /b %errorlevel%
 )
 echo Local build: %LOCAL_BUILD_DATE%.
+for /f "delims=" %%i in ('powershell -Command "[datetime]::Parse('%LOCAL_BUILD_DATE%').ToFileTimeUtc()"') do set LOCAL_BUILD_TS=%%i
+echo Local build(timestamp): %LOCAL_BUILD_TS%.
 
 echo Checking remote build... (%URL_INDEX_BUILDS%)
 curl -s -L -o "%TEMP_INDEX_BUILDS%" "%URL_INDEX_BUILDS%"
@@ -101,9 +107,12 @@ if %errorlevel% neq 0 (
     exit /b %errorlevel%
 )
 echo Remote build: %REMOTE_BUILD_DATE%.
+for /f "delims=" %%i in ('powershell -Command "[datetime]::Parse('%REMOTE_BUILD_DATE%').ToFileTimeUtc()"') do set REMOTE_BUILD_TS=%%i
+echo Remote build(timestamp): %REMOTE_BUILD_TS%.
 
-:: Compare dates
-if "%REMOTE_BUILD_DATE%" GTR "%LOCAL_BUILD_DATE%" goto UPDATE_BUILD
+:: Compare timestamps
+if %REMOTE_BUILD_TS% GTR %LOCAL_BUILD_TS% goto UPDATE_BUILD
+
 
 echo No update needed. Local build is up to date.
 goto LAUNCH_BUILD
