@@ -12,11 +12,20 @@ set TEMP_INDEX_LAUNCHERS=%TEMP%\index_launchers.json
 set TEMP_LAUNCHER=%TEMP%\%LAUNCHER_NAME%
 
 
+:: Extract the local file's modification date
+for /f "delims=" %%i in ('powershell -Command "(Get-Item '%LOCAL_LAUNCHER%').LastWriteTimeUtc.ToString('R')"') do set LOCAL_DATE=%%i
+if %errorlevel% neq 0 (
+    echo Failed to extract local date.
+    pause
+    exit /b %errorlevel%
+)
+for /f "delims=" %%i in ('powershell -Command "[datetime]::Parse('%LOCAL_DATE%').ToFileTimeUtc()"') do set LOCAL_TS=%%i
+echo Local launcher: %LOCAL_DATE% (timestamp: %LOCAL_TS%).
+
 :: Download the JSON index from the server
-echo Checking remote launcher...
 curl -s -L -o "%TEMP_INDEX_LAUNCHERS%" "%URL_INDEX_LAUNCHERS%"
 if %errorlevel% neq 0 (
-    echo Failed to download JSON index.
+    echo Failed to check for remote launcher.
     pause
     exit /b %errorlevel%
 )
@@ -31,25 +40,11 @@ if %errorlevel% neq 0 (
 for /f "delims=" %%i in ('powershell -Command "[datetime]::Parse('%REMOTE_DATE%').ToFileTimeUtc()"') do set REMOTE_TS=%%i
 echo Remote launcher: %REMOTE_DATE% (timestamp: %REMOTE_TS%).
 
-:: Check if the local file exists
-if not exist "%LOCAL_LAUNCHER%" goto UPDATE_LAUNCHER
-
-:: Extract the local file's modification date (GMT format)
-for /f "delims=" %%i in ('powershell -Command "(Get-Item '%LOCAL_LAUNCHER%').LastWriteTimeUtc.ToString('R')"') do set LOCAL_DATE=%%i
-if %errorlevel% neq 0 (
-    echo Failed to extract local date.
-    pause
-    exit /b %errorlevel%
-)
-
-:: Compare dates
-for /f "delims=" %%i in ('powershell -Command "[datetime]::Parse('%LOCAL_DATE%').ToFileTimeUtc()"') do set LOCAL_TS=%%i
-echo Local launcher: %LOCAL_DATE% (timestamp: %LOCAL_TS%).
-
 :: Comparer les timestamps
-if %REMOTE_TS% GTR %LOCAL_TS% goto UPDATE_LAUNCHER
+for /f %%i in ('powershell -Command "[long]$r=%REMOTE_TS%; [long]$l=%LOCAL_TS%; if ($r -gt $l) { echo 1 } else { echo 0 }"') do set COMPARE_RESULT=%%i
+if %COMPARE_RESULT% == 1 goto UPDATE_LAUNCHER
 
-echo No update needed. Local launcher is up to date.
+echo Local launcher is up to date.
 goto CHECK_BUILD
 
 :UPDATE_LAUNCHER
@@ -87,9 +82,8 @@ if %errorlevel% neq 0 (
     pause
     exit /b %errorlevel%
 )
-echo Local build: %LOCAL_BUILD_DATE%.
 for /f "delims=" %%i in ('powershell -Command "[datetime]::Parse('%LOCAL_BUILD_DATE%').ToFileTimeUtc()"') do set LOCAL_BUILD_TS=%%i
-echo Local build(timestamp): %LOCAL_BUILD_TS%.
+echo Local build: %LOCAL_BUILD_DATE% (timestamp: %LOCAL_BUILD_TS%).
 
 echo Checking remote build... (%URL_INDEX_BUILDS%)
 curl -s -L -o "%TEMP_INDEX_BUILDS%" "%URL_INDEX_BUILDS%"
@@ -106,19 +100,18 @@ if %errorlevel% neq 0 (
     pause
     exit /b %errorlevel%
 )
-echo Remote build: %REMOTE_BUILD_DATE%.
 for /f "delims=" %%i in ('powershell -Command "[datetime]::Parse('%REMOTE_BUILD_DATE%').ToFileTimeUtc()"') do set REMOTE_BUILD_TS=%%i
-echo Remote build(timestamp): %REMOTE_BUILD_TS%.
+echo Remote build: %REMOTE_BUILD_DATE% (timestamp: %REMOTE_BUILD_TS%).
 
 :: Compare timestamps
-if %REMOTE_BUILD_TS% GTR %LOCAL_BUILD_TS% goto UPDATE_BUILD
-
+for /f %%i in ('powershell -Command "[long]$r=%REMOTE_BUILD_TS%; [long]$l=%LOCAL_BUILD_TS%; if ($r -gt $l) { echo 1 } else { echo 0 }"') do set COMPARE_RESULT=%%i
+if %COMPARE_RESULT% == 1 goto UPDATE_BUILD
 
 echo No update needed. Local build is up to date.
 goto LAUNCH_BUILD
 
+
 :UPDATE_BUILD
-echo New build detected!
 echo Downloading... (%URL_BUILD%)
 curl -s -L -o "%TEMP_ZIP%" "%URL_BUILD%"
 if %errorlevel% neq 0 (
