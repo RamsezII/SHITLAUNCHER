@@ -1,5 +1,12 @@
 @echo off
+
+:: sets the local environment for the batch file execution.
 setlocal
+
+:: Change the current directory to the directory of the batch file.
+:: The /d switch is used to change the drive as well as the directory.
+:: %~dp0 is a special variable that expands to the drive and path of the batch file.
+cd /d "%~dp0"
 
 :: Define variables
 set LAUNCHER_NAME=%~nx0
@@ -113,7 +120,7 @@ goto LAUNCH_BUILD
 
 :UPDATE_BUILD
 echo Downloading... (%URL_BUILD%)
-curl -s -L -o "%TEMP_ZIP%" "%URL_BUILD%"
+curl --progress-bar -L -o "%TEMP_ZIP%" "%URL_BUILD%"
 if %errorlevel% neq 0 (
     echo Failed to download new build.
     pause
