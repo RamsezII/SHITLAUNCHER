@@ -41,6 +41,10 @@
             color: black;
         }
 
+        .main-link:hover img {
+            filter: invert(1);
+        }
+
         .social-icons {
             display: flex;
             justify-content: center;
@@ -56,22 +60,42 @@
             width: 50px;
             height: 50px;
             opacity: 0.8;
-            /* Add this line to make the icons slightly grayed out */
             transition: transform 0.1s ease, opacity 0.1s ease;
         }
 
         .social-icons img:hover {
             transform: scale(1.1);
             opacity: 1;
-            /* Add this line to restore full opacity on hover */
         }
     </style>
 </head>
 
 <body>
     <h1>SHIT$TORM</h1>
+    <a class="main-link" href="https://shitstorm.ovh/launchers/SHITLAUNCHER.bat" download id="windows-link">
+        Download ShitLauncher <img src="https://img.icons8.com/ios-filled/24/ffffff/windows8.png" alt="Windows Icon">
+    </a>
+    <a class="main-link" href="https://shitstorm.ovh/launchers/SHITLAUNCHER.sh" download id="linux-link">
+        Download ShitLauncher <img src="https://img.icons8.com/ios-filled/24/ffffff/linux.png" alt="Linux Icon">
+    </a>
+    <script>
+        function detectOS() {
+            const platform = navigator.platform.toLowerCase();
+            const windowsLink = document.getElementById('windows-link');
+            const linuxLink = document.getElementById('linux-link');
 
-    <a class="main-link" href="https://shitstorm.ovh/launchers/SHITLAUNCHER.bat" download>Download ShitLauncher</a>
+            if (platform.includes('win')) {
+                linuxLink.style.opacity = '0.5';
+            } else if (platform.includes('linux')) {
+                windowsLink.style.opacity = '0.5';
+            } else {
+                windowsLink.style.opacity = '0.5';
+                linuxLink.style.opacity = '0.5';
+            }
+        }
+
+        detectOS();
+    </script>
 
     <div class="social-icons">
         <a href="https://discord.gg/MWhZSh2Pn8" target="_blank">
