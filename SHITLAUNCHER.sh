@@ -130,10 +130,7 @@ fi
 
 # Determine the best way to launch the game
 echo "Checking for Proton or Wine..."
-if command -v protontricks &> /dev/null; then
-    echo "Using Proton (via protontricks) to launch the game."
-    protontricks -c "$LOCAL_BUILD_EXE"
-elif command -v proton &> /dev/null; then
+if command -v proton &> /dev/null; then
     echo "Using Proton directly to launch the game."
     proton run "$LOCAL_BUILD_EXE"
 elif command -v wine &> /dev/null; then
