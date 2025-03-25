@@ -1,146 +1,109 @@
-#!/bin/bash
+@echo off
 
-# Define variables
-LAUNCHER_NAME=$(basename "$0")
-LOCAL_LAUNCHER=$(realpath "$0")
+setlocal
+cd /d "%~dp0"
 
-URL_INDEX_LAUNCHERS="https://shitstorm.ovh/launchers"
-URL_LAUNCHER="https://shitstorm.ovh/launchers/$LAUNCHER_NAME"
+set LAUNCHER_NAME=%~nx0
+set LOCAL_LAUNCHER=%~dp0%~nx0
 
-TEMP_INDEX_LAUNCHERS="/tmp/index_launchers.json"
-TEMP_LAUNCHER="/tmp/$LAUNCHER_NAME"
+set URL_INDEX_LAUNCHERS=https://shitstorm.ovh/launchers
+set URL_LAUNCHER=https://shitstorm.ovh/launchers/%LAUNCHER_NAME%
 
-URL_INDEX_BUILDS="https://shitstorm.ovh/builds"
-URL_BUILD="https://shitstorm.ovh/builds/SHITSTORM.zip"
+set TEMP_INDEX_LAUNCHERS=%TEMP%\index_launchers.json
+set TEMP_LAUNCHER=%TEMP%\%LAUNCHER_NAME%
 
-TEMP_INDEX_BUILDS="/tmp/index_builds.json"
-TEMP_ZIP="/tmp/SHITSTORM.zip"
+:: Get local launcher timestamp
+for /f "delims=" %%i in ('powershell -Command "(Get-Item '%LOCAL_LAUNCHER%').LastWriteTimeUtc.ToFileTimeUtc()"') do set LOCAL_TS=%%i
+powershell -Command "$json = Get-Content -Raw '%URL_INDEX_LAUNCHERS%' | Invoke-RestMethod; $json | Where-Object { $_.name -eq 'SHITLAUNCHER.bat' } | Select-Object -ExpandProperty mtime" > "%TEMP%\remote_launcher_time.txt"
+for /f "delims=" %%i in ('powershell -Command "[datetime]::Parse((Get-Content -Path '%TEMP%\remote_launcher_time.txt')).ToFileTimeUtc()"') do set REMOTE_TS=%%i
 
-LOCAL_INSTALL_DIR="$(dirname "$0")/SHITSTORM_install"
-LOCAL_BUILD_DIR="$LOCAL_INSTALL_DIR/Standalone"
-LOCAL_BUILD_EXE="$LOCAL_BUILD_DIR/SHITSTORM.exe"
+:: Compare timestamps using proper exit code
+powershell -Command "$r=[long]::Parse('%REMOTE_TS%'); $l=[long]::Parse('%LOCAL_TS%'); if ($r -gt $l) { exit 1 } else { exit 0 }"
+if %errorlevel% equ 1 (
+    echo Remote launcher is newer. Downloading...
+    curl -s -L -o "%LOCAL_LAUNCHER%" "%URL_LAUNCHER%"
+    if %errorlevel% neq 0 (
+        echo Failed to update launcher.
+        pause
+        exit /b %errorlevel%
+    )
+    echo Update completed. Restarting launcher...
+    start "" "%LOCAL_LAUNCHER%"
+    exit
+) else (
+    echo Local launcher is up to date.
+)
 
-# Cleanup function
-cleanup() {
-    rm -f "$TEMP_INDEX_LAUNCHERS" "$TEMP_LAUNCHER" "$TEMP_INDEX_BUILDS" "$TEMP_ZIP"
-}
-trap cleanup EXIT
+:CHECK_BUILD
+set URL_INDEX_BUILDS=https://shitstorm.ovh/builds
+set URL_BUILD=https://shitstorm.ovh/builds/SHITSTORM.zip
 
-# Function to check for errors
-check_error() {
-    if [ $? -ne 0 ]; then
-        echo "$1"
-        read -p "Appuyez sur Entrée pour continuer..."
-        exit 1
-    fi
-}
+set TEMP_INDEX_BUILDS=%TEMP%\index_builds.json
+set TEMP_ZIP=%TEMP%\SHITSTORM.zip
 
-# Function to download a file
-download_file() {
-    curl -s -L -o "$1" "$2"
-    check_error "Failed to download $2."
-}
+set LOCAL_INSTALL_DIR=%~dp0SHITSTORM_install
+set LOCAL_BUILD_DIR=%LOCAL_INSTALL_DIR%\Standalone
+set LOCAL_BUILD_EXE=%LOCAL_BUILD_DIR%\SHITSTORM.exe
 
-# Function to get timestamp from file
-get_timestamp() {
-    local date=$(stat -c %y "$1" | cut -d'.' -f1)
-    date -d "$date" +%s
-}
+if not exist "%LOCAL_BUILD_EXE%" goto UPDATE_BUILD
 
-# Ensure dependencies are installed
-echo "Checking dependencies..."
-MISSING_DEPS=""
+for /f "delims=" %%i in ('powershell -Command "(Get-Item '%LOCAL_BUILD_DIR%').LastWriteTimeUtc.ToFileTimeUtc()"') do set LOCAL_BUILD_TS=%%i
+curl -s -L -o "%TEMP_INDEX_BUILDS%" "%URL_INDEX_BUILDS%"
 
-for dep in jq unzip curl wine; do
-    if ! command -v $dep &> /dev/null; then
-        MISSING_DEPS+="$dep "
-    fi
-done
+powershell -Command "$json = Get-Content -Raw '%TEMP_INDEX_BUILDS%' | ConvertFrom-Json; $json | Where-Object { $_.name -eq 'SHITSTORM.zip' } | Select-Object -ExpandProperty mtime" > "%TEMP%\remote_build_time.txt"
+for /f "delims=" %%i in ('powershell -Command "[datetime]::Parse((Get-Content -Path '%TEMP%\remote_build_time.txt')).ToFileTimeUtc()"') do set REMOTE_BUILD_TS=%%i
 
-if [ -n "$MISSING_DEPS" ]; then
-    echo "Missing dependencies: $MISSING_DEPS"
-    echo "Attempting to install..."
-    sudo apt update && sudo apt install -y $MISSING_DEPS || {
-        echo "Failed to install dependencies. Please install manually: sudo apt install $MISSING_DEPS"
-        exit 1
-    }
-fi
+powershell -Command "$r=[long]::Parse('%REMOTE_BUILD_TS%'); $l=[long]::Parse('%LOCAL_BUILD_TS%'); if ($r -gt $l) { exit 1 } else { exit 0 }"
+if %errorlevel% equ 1 goto UPDATE_BUILD
 
-echo "All dependencies are installed."
+echo No update needed. Local build is up to date.
+goto LAUNCH_BUILD
 
-# Check for launcher update
-LOCAL_TS=$(get_timestamp "$LOCAL_LAUNCHER")
-echo "Local launcher: $(date -d @$LOCAL_TS)."
+:UPDATE_BUILD
+echo Downloading... (%URL_BUILD%)
+curl --progress-bar -L -o "%TEMP_ZIP%" "%URL_BUILD%"
+if %errorlevel% neq 0 (
+    echo Failed to download new build.
+    pause
+    exit /b %errorlevel%
+)
+echo Downloaded new build.
 
-download_file "$TEMP_INDEX_LAUNCHERS" "$URL_INDEX_LAUNCHERS"
+if exist "%LOCAL_BUILD_DIR%" (
+    echo Removing old build directory... %LOCAL_BUILD_DIR%
+    rmdir /s /q "%LOCAL_BUILD_DIR%"
+    if %errorlevel% neq 0 (
+        echo Error deleting the directory, code: %errorlevel%
+        pause
+        exit /b %errorlevel%
+    )
+)
 
-REMOTE_DATE=$(jq -r '.[] | select(.name == "SHITLAUNCHER.sh") | .mtime' "$TEMP_INDEX_LAUNCHERS")
-REMOTE_TS=$(date -d "$REMOTE_DATE" +%s)
-echo "Remote launcher: $(date -d @$REMOTE_TS)."
+if not exist "%LOCAL_BUILD_DIR%" (
+    echo Creating new build directory...
+    mkdir "%LOCAL_BUILD_DIR%"
+    if %errorlevel% neq 0 (
+        echo Failed to create build directory.
+        pause
+        exit /b %errorlevel%
+    )
+)
 
-if [ "$REMOTE_TS" -gt "$LOCAL_TS" ]; then
-    echo "Launcher update needed, downloading..."
-    download_file "$LOCAL_LAUNCHER" "$URL_LAUNCHER"
-    echo "Update completed. Restarting launcher..."
-    exec "$LOCAL_LAUNCHER"
-fi
+tar -xf "%TEMP_ZIP%" -C "%LOCAL_BUILD_DIR%"
+if %errorlevel% neq 0 (
+    echo Failed to extract new build.
+    pause
+    exit /b %errorlevel%
+)
+echo build update completed.
 
-echo "Local launcher is up to date."
+:LAUNCH_BUILD
+echo Launching build...
+start "" "%LOCAL_BUILD_EXE%"
 
-# Check for build update
-if [ ! -f "$LOCAL_BUILD_EXE" ]; then
-    UPDATE_BUILD=true
-else
-    LOCAL_BUILD_TS=$(get_timestamp "$LOCAL_BUILD_DIR")
-    echo "Local build: $(date -d @$LOCAL_BUILD_TS)."
+if %errorlevel% neq 0 (
+    echo An error occurred...
+    pause
+)
 
-    download_file "$TEMP_INDEX_BUILDS" "$URL_INDEX_BUILDS"
-
-    REMOTE_BUILD_DATE=$(jq -r '.[] | select(.name == "SHITSTORM.zip") | .mtime' "$TEMP_INDEX_BUILDS")
-    REMOTE_BUILD_TS=$(date -d "$REMOTE_BUILD_DATE" +%s)
-    echo "Remote build: $(date -d @$REMOTE_BUILD_TS)."
-
-    if [ "$REMOTE_BUILD_TS" -gt "$LOCAL_BUILD_TS" ]; then
-        UPDATE_BUILD=true
-    else
-        echo "No update needed. Local build is up to date."
-    fi
-fi
-
-if [ "$UPDATE_BUILD" = true ]; then
-    echo "Downloading new build..."
-    download_file "$TEMP_ZIP" "$URL_BUILD"
-    echo "Downloaded new build."
-
-    if [ -d "$LOCAL_BUILD_DIR" ]; then
-        echo "Removing old build directory... $LOCAL_BUILD_DIR"
-        rm -rf "$LOCAL_BUILD_DIR"
-        check_error "Error deleting the directory."
-    fi
-
-    echo "Creating new build directory..."
-    mkdir -p "$LOCAL_BUILD_DIR"
-    check_error "Failed to create build directory."
-
-    echo "Extracting new build..."
-    unzip -o "$TEMP_ZIP" -d "$LOCAL_BUILD_DIR"
-    check_error "Failed to extract new build."
-    echo "Build update completed."
-fi
-
-# Determine the best way to launch the game
-echo "Checking for Proton or Wine..."
-if command -v proton &> /dev/null; then
-    echo "Using Proton directly to launch the game."
-    proton run "$LOCAL_BUILD_EXE"
-elif command -v wine &> /dev/null; then
-    echo "Using Wine to launch the game."
-    wine "$LOCAL_BUILD_EXE"
-else
-    echo "No compatible Windows emulator found. Install Wine or Proton manually."
-    exit 1
-fi
-
-check_error "An error occurred while launching the build."
-
-exit 0
+exit
