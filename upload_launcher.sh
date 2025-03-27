@@ -1,34 +1,22 @@
 #!/bin/bash
 
-# Define variables
-REMOTE_USER="debian"
-REMOTE_HOST="shitstorm.ovh"
-REMOTE_DIR="/var/www/paragon/launchers"
-LOCAL_FILES=("SHITLAUNCHER.bat" "SHITLAUNCHER.sh")
-TESTS_DIR="TESTS"
+# Rendre SHITLAUNCHER.sh exécutable
+chmod +x ./SHITLAUNCHER.sh
 
-# Make SHITLAUNCHER.sh executable
-chmod +x "SHITLAUNCHER.sh"
+# Convertir le fichier au format Unix (dos2unix)
+dos2unix ./SHITLAUNCHER.sh
 
-# Upload files to remote server
-scp "${LOCAL_FILES[@]}" "$REMOTE_USER@$REMOTE_HOST:$REMOTE_DIR"
-if [ $? -ne 0 ]; then
-    echo "An error occurred during the file upload."
-    echo "Error details: $?"
-    read -p "Press any key to continue..."
-    exit 1
-fi
+# Copier SHITLAUNCHER.sh sur le serveur distant
+scp ./SHITLAUNCHER.sh debian@shitstorm.ovh:/var/www/paragon/launchers/SHITLAUNCHER.sh
 
-# Create TESTS directory if it doesn't exist
-if [ ! -d "$TESTS_DIR" ]; then
-    mkdir "$TESTS_DIR"
-fi
+# Générer un hash SHA256 et l'enregistrer dans hash_sh.txt
+sha256sum ./SHITLAUNCHER.sh | awk '{print $1}' > hash_sh.txt
 
-# Copy files to TESTS directory
-cp "${LOCAL_FILES[@]}" "$TESTS_DIR/"
-if [ $? -ne 0 ]; then
-    echo "An error occurred during the file copy to TESTS."
-    echo "Error details: $?"
-    read -p "Press any key to continue..."
-    exit 1
-fi
+# Copier hash_sh.txt sur le serveur distant
+scp hash_sh.txt debian@shitstorm.ovh:/var/www/paragon/launchers/hash_sh.txt
+
+# Créer le dossier ./TESTS s'il n'existe pas
+mkdir -p ./TESTS
+
+# Copier SHITLAUNCHER.sh dans le dossier ./TESTS
+cp ./SHITLAUNCHER.sh ./TESTS/
