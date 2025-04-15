@@ -16,7 +16,7 @@ def index_recursive(path):
             })
     return entries
 
-base_path = "/var/www/paragon/texts"
+base_path = "/var/www/paragon/eve"
 index = index_recursive(base_path)
 
 with open("/var/www/paragon/eve_index.json", "w") as f:
