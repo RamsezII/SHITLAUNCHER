@@ -11,7 +11,7 @@ TEMP_INDEX_LAUNCHERS="/tmp/index_launchers.json"
 TEMP_LAUNCHER="/tmp/$LAUNCHER_NAME"
 
 URL_INDEX_BUILDS="https://shitstorm.ovh/builds"
-URL_BUILD="https://shitstorm.ovh/builds/SHITSTORM.zip"
+URL_BUILD="https://shitstorm.ovh/builds/SHITSTORM-linux.zip"
 
 TEMP_INDEX_BUILDS="/tmp/index_builds.json"
 TEMP_ZIP="/tmp/SHITSTORM.zip"
@@ -96,7 +96,7 @@ else
 
     download_file "$TEMP_INDEX_BUILDS" "$URL_INDEX_BUILDS"
 
-    REMOTE_BUILD_DATE=$(jq -r '.[] | select(.name == "SHITSTORM.zip") | .mtime' "$TEMP_INDEX_BUILDS")
+    REMOTE_BUILD_DATE=$(jq -r '.[] | select(.name == "SHITSTORM-linux.zip") | .mtime' "$TEMP_INDEX_BUILDS")
     REMOTE_BUILD_TS=$(date -d "$REMOTE_BUILD_DATE" +%s)
     echo "Remote build: $(date -d @$REMOTE_BUILD_TS)."
 
