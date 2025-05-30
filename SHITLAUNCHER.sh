@@ -18,7 +18,7 @@ TEMP_ZIP="/tmp/SHITSTORM.zip"
 
 LOCAL_INSTALL_DIR="$(dirname "$0")/SHITSTORM_install"
 LOCAL_BUILD_DIR="$LOCAL_INSTALL_DIR/Standalone"
-LOCAL_BUILD_EXE="$LOCAL_BUILD_DIR/SHITSTORM.exe"
+LOCAL_BUILD_EXE="$LOCAL_BUILD_DIR/SHITSTORM.x86_64"
 
 # Cleanup function
 cleanup() {
@@ -128,19 +128,21 @@ if [ "$UPDATE_BUILD" = true ]; then
     echo "Build update completed."
 fi
 
-# Determine the best way to launch the game
-echo "Checking for Proton or Wine..."
-if command -v proton &> /dev/null; then
-    echo "Using Proton directly to launch the game."
-    proton run "$LOCAL_BUILD_EXE"
-elif command -v wine &> /dev/null; then
-    echo "Using Wine to launch the game."
-    wine "$LOCAL_BUILD_EXE"
-else
-    echo "No compatible Windows emulator found. Install Wine or Proton manually."
+# Lancer directement l'exécutable Linux
+if [ ! -f "$LOCAL_BUILD_EXE" ]; then
+    echo "Erreur : l'exécutable du jeu n'a pas été trouvé : $LOCAL_BUILD_EXE"
     exit 1
 fi
 
-check_error "An error occurred while launching the build."
+# S'assurer que l'exécutable a les droits d'exécution
+if [ ! -x "$LOCAL_BUILD_EXE" ]; then
+    echo "Ajout du droit d'exécution à $LOCAL_BUILD_EXE"
+    chmod +x "$LOCAL_BUILD_EXE"
+    check_error "Impossible de rendre l'exécutable exécutable."
+fi
+
+echo "Lancement du jeu..."
+"$LOCAL_BUILD_EXE"
+check_error "Une erreur est survenue lors du lancement du jeu."
 
 exit 0
