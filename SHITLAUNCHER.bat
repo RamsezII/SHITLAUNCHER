@@ -49,7 +49,7 @@ if /i not "%REMOTE_HASH%"=="%LOCAL_HASH%" (
 
 :CHECK_BUILD
 set URL_INDEX_BUILDS=https://shitstorm.ovh/builds
-set URL_BUILD=https://shitstorm.ovh/builds/SHITSTORM-windows.zip
+set URL_BUILD=https://shitstorm.ovh/builds/SHITSTORM_windows.zip
 
 set TEMP_INDEX_BUILDS=%TEMP%\index_builds.json
 set TEMP_ZIP=%TEMP%\SHITSTORM.zip
@@ -63,7 +63,7 @@ if not exist "%LOCAL_BUILD_EXE%" goto UPDATE_BUILD
 for /f "delims=" %%i in ('powershell -Command "(Get-Item '%LOCAL_BUILD_DIR%').LastWriteTimeUtc.ToFileTimeUtc()"') do set LOCAL_BUILD_TS=%%i
 curl -s -L -o "%TEMP_INDEX_BUILDS%" "%URL_INDEX_BUILDS%"
 
-powershell -Command "$json = Get-Content -Raw '%TEMP_INDEX_BUILDS%' | ConvertFrom-Json; $json | Where-Object { $_.name -eq 'SHITSTORM-windows.zip' } | Select-Object -ExpandProperty mtime" > "%TEMP%\remote_build_time.txt"
+powershell -Command "$json = Get-Content -Raw '%TEMP_INDEX_BUILDS%' | ConvertFrom-Json; $json | Where-Object { $_.name -eq 'SHITSTORM_windows.zip' } | Select-Object -ExpandProperty mtime" > "%TEMP%\remote_build_time.txt"
 for /f "delims=" %%i in ('powershell -Command "[datetime]::Parse((Get-Content -Path '%TEMP%\remote_build_time.txt')).ToFileTimeUtc()"') do set REMOTE_BUILD_TS=%%i
 
 powershell -Command "$r=[long]::Parse('%REMOTE_BUILD_TS%'); $l=[long]::Parse('%LOCAL_BUILD_TS%'); if ($r -gt $l) { exit 1 } else { exit 0 }"

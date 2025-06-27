@@ -11,7 +11,7 @@ TEMP_INDEX_LAUNCHERS="/tmp/index_launchers.json"
 TEMP_LAUNCHER="/tmp/$LAUNCHER_NAME"
 
 URL_INDEX_BUILDS="https://shitstorm.ovh/builds"
-URL_BUILD="https://shitstorm.ovh/builds/SHITSTORM-linux.zip"
+URL_BUILD="https://shitstorm.ovh/builds/SHITSTORM_linux.zip"
 
 TEMP_INDEX_BUILDS="/tmp/index_builds.json"
 TEMP_ZIP="/tmp/SHITSTORM.zip"
