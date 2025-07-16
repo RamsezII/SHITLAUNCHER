@@ -31,10 +31,12 @@
             font-size: 13em;
             font-weight: bold;
             letter-spacing: 10px;
-            background: linear-gradient(to bottom, white, rgb(113, 113, 113));
-            -webkit-background-clip: text;
+            /* background: linear-gradient(to bottom, white, rgb(113, 113, 113)); */
+            /* -webkit-background-clip: text;
             background-clip: text;
-            -webkit-text-fill-color: transparent;
+            -webkit-text-fill-color: transparent; */
+            color: rgba(255, 255, 255, 0.9);
+            text-shadow: 0 12px 8px rgba(0, 0, 0, 0.457);
         }
 
         .main-link {
@@ -43,11 +45,13 @@
             padding: 5px 50px;
             text-decoration: none;
             font-size: 2em;
+            text-shadow: 0 2px 0px black;
         }
 
         .main-link:hover {
             background: white;
             color: black;
+            text-shadow: 0 0px 0px black;
         }
 
         .main-link:hover img {
@@ -88,6 +92,12 @@
             object-fit: cover;
             filter: brightness(0.3);
             pointer-events: none;
+        }
+
+        p,
+        div,
+        footer {
+            text-shadow: 0 1px 0px black;
         }
     </style>
 </head>
@@ -144,8 +154,8 @@
         </a> -->
     </div>
 
-    <footer style="color: #888; font-size: 0.8em; text-align: center; margin-top: 20px;">
-        <p>© 2014 SHIT$TORM. All rights rizzerved.<br>
+    <footer style="color: #b8b8b8; font-size: 0.8em; text-align: center; margin-top: 20px;">
+        <p>© 2014 SHIT$TORM. All rizz reserved.<br>
             <a style="color: #d9f9ff;" href="mailto:shitstorm.officiel@gmail.com">shitstorm.officiel@gmail.com</a>
         </p>
     </footer>
