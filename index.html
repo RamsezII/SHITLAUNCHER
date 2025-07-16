@@ -23,22 +23,21 @@
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            height: 100vh;
             margin: 0;
         }
 
         h1 {
             font-family: Impact;
-            font-size: 15em;
+            font-size: 13em;
             font-weight: bold;
             letter-spacing: 10px;
-            background: linear-gradient(to bottom, white, black);
+            background: linear-gradient(to bottom, white, rgb(113, 113, 113));
             -webkit-background-clip: text;
+            background-clip: text;
             -webkit-text-fill-color: transparent;
         }
 
         .main-link {
-            margin-top: 20px;
             font-family: "Courier New", Consolas, Monaco, monospace;
             color: #dddddd;
             padding: 5px 50px;
@@ -77,18 +76,40 @@
             transform: scale(1.1);
             opacity: 1;
         }
+
+        #bg-video {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            min-width: 100%;
+            min-height: 100%;
+            transform: translate(-50%, -50%);
+            z-index: -1;
+            object-fit: cover;
+            filter: brightness(0.3);
+            pointer-events: none;
+        }
     </style>
 </head>
 
 <body>
+
+    <video autoplay muted loop playsinline id="bg-video">
+        <source src="bg.mp4" type="video/mp4">
+    </video>
+
     <h1>SHIT$TORM</h1>
+
     <a class="main-link" href="https://shitstorm.ovh/launchers/SHITLAUNCHER.bat" download id="windows-link">
         Download ShitLauncher <img src="https://img.icons8.com/ios-filled/24/ffffff/windows8.png" alt="Windows Icon">
     </a>
+
     <a class="main-link" href="https://shitstorm.ovh/launchers/SHITLAUNCHER.sh" download id="linux-link">
         Download ShitLauncher <img src="https://img.icons8.com/ios-filled/24/ffffff/linux.png" alt="Linux Icon">
     </a>
+
     <script>
+
         function detectOS() {
             const platform = navigator.platform.toLowerCase();
             const windowsLink = document.getElementById('windows-link');
@@ -105,6 +126,7 @@
         }
 
         detectOS();
+
     </script>
 
     <div class="social-icons">
@@ -121,6 +143,13 @@
             <img src="https://img.icons8.com/ios-filled/50/ffffff/mail.png" alt="Email">
         </a>
     </div>
+
+    <footer style="color: #888; font-size: 0.8em; text-align: center; margin-top: 20px;">
+        <p>© 2014 SHIT$TORM. All rights reserved to me.<br>
+            <a style="color: #d9f9ff;" href="mailto:shitstorm.officiel@gmail.com">shitstorm.officiel@gmail.com</a>
+        </p>
+    </footer>
+
 </body>
 
 </html>
