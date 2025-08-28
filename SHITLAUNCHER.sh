@@ -47,27 +47,6 @@ get_timestamp() {
     date -d "$date" +%s
 }
 
-# Ensure dependencies are installed
-echo "Checking dependencies..."
-MISSING_DEPS=""
-
-for dep in jq unzip curl wine; do
-    if ! command -v $dep &> /dev/null; then
-        MISSING_DEPS+="$dep "
-    fi
-done
-
-if [ -n "$MISSING_DEPS" ]; then
-    echo "Missing dependencies: $MISSING_DEPS"
-    echo "Attempting to install..."
-    sudo apt update && sudo apt install -y $MISSING_DEPS || {
-        echo "Failed to install dependencies. Please install manually: sudo apt install $MISSING_DEPS"
-        exit 1
-    }
-fi
-
-echo "All dependencies are installed."
-
 # Check for launcher update
 LOCAL_TS=$(get_timestamp "$LOCAL_LAUNCHER")
 echo "Local launcher: $(date -d @$LOCAL_TS)."
