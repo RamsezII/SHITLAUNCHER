@@ -19,7 +19,7 @@ TEMP_INDEX_BUILDS="/tmp/index_builds.json"
 TEMP_ZIP="/tmp/SHITSTORM.zip"
 
 LOCAL_INSTALL_DIR="$(dirname "$0")/SHITSTORM_install"
-LOCAL_BUILD_DIR="$LOCAL_INSTALL_DIR/Standalone"
+LOCAL_BUILD_DIR=""
 # LOCAL_BUILD_EXE sera défini après le choix plateforme
 LOCAL_BUILD_EXE=""
 
@@ -30,12 +30,14 @@ case "$choice" in
     IS_WINDOWS=true
     BUILD_ARCHIVE_NAME="SHITSTORM_windows.zip"
     URL_BUILD="https://shitstorm.ovh/builds/$BUILD_ARCHIVE_NAME"
+    LOCAL_BUILD_DIR="$LOCAL_INSTALL_DIR/Standalone_windows"
     LOCAL_BUILD_EXE="$LOCAL_BUILD_DIR/SHITSTORM.exe"
     ;;
   l|L|*)
     IS_WINDOWS=false
     BUILD_ARCHIVE_NAME="SHITSTORM_linux.zip"
     URL_BUILD="https://shitstorm.ovh/builds/$BUILD_ARCHIVE_NAME"
+    LOCAL_BUILD_DIR="$LOCAL_INSTALL_DIR/Standalone_linux"
     LOCAL_BUILD_EXE="$LOCAL_BUILD_DIR/SHITSTORM.x86_64"
     ;;
 esac
