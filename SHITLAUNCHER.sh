@@ -11,14 +11,36 @@ TEMP_INDEX_LAUNCHERS="/tmp/index_launchers.json"
 TEMP_LAUNCHER="/tmp/$LAUNCHER_NAME"
 
 URL_INDEX_BUILDS="https://shitstorm.ovh/builds"
-URL_BUILD="https://shitstorm.ovh/builds/SHITSTORM_linux.zip"
+# URL_BUILD et autres seront déterminés après le choix plateforme
+URL_BUILD=""
+BUILD_ARCHIVE_NAME=""
 
 TEMP_INDEX_BUILDS="/tmp/index_builds.json"
 TEMP_ZIP="/tmp/SHITSTORM.zip"
 
 LOCAL_INSTALL_DIR="$(dirname "$0")/SHITSTORM_install"
 LOCAL_BUILD_DIR="$LOCAL_INSTALL_DIR/Standalone"
-LOCAL_BUILD_EXE="$LOCAL_BUILD_DIR/SHITSTORM.x86_64"
+# LOCAL_BUILD_EXE sera défini après le choix plateforme
+LOCAL_BUILD_EXE=""
+
+# -------------------- Choix plateforme --------------------
+read -p "Choisir plateforme (w=Windows, l=Linux) : " choice
+case "$choice" in
+  w|W)
+    IS_WINDOWS=true
+    BUILD_ARCHIVE_NAME="SHITSTORM_windows.zip"
+    URL_BUILD="https://shitstorm.ovh/builds/$BUILD_ARCHIVE_NAME"
+    LOCAL_BUILD_EXE="$LOCAL_BUILD_DIR/SHITSTORM.exe"
+    ;;
+  l|L|*)
+    IS_WINDOWS=false
+    BUILD_ARCHIVE_NAME="SHITSTORM_linux.zip"
+    URL_BUILD="https://shitstorm.ovh/builds/$BUILD_ARCHIVE_NAME"
+    LOCAL_BUILD_EXE="$LOCAL_BUILD_DIR/SHITSTORM.x86_64"
+    ;;
+esac
+echo "Plateforme choisie : $( [ "$IS_WINDOWS" = true ] && echo Windows || echo Linux )"
+# ----------------------------------------------------------
 
 # Cleanup function
 cleanup() {
@@ -75,19 +97,24 @@ else
 
     download_file "$TEMP_INDEX_BUILDS" "$URL_INDEX_BUILDS"
 
-    REMOTE_BUILD_DATE=$(jq -r '.[] | select(.name == "SHITSTORM-linux.zip") | .mtime' "$TEMP_INDEX_BUILDS")
-    REMOTE_BUILD_TS=$(date -d "$REMOTE_BUILD_DATE" +%s)
-    echo "Remote build: $(date -d @$REMOTE_BUILD_TS)."
-
-    if [ "$REMOTE_BUILD_TS" -gt "$LOCAL_BUILD_TS" ]; then
+    # Attention au nom exact dans l'index (on utilise la variable BUILD_ARCHIVE_NAME)
+    REMOTE_BUILD_DATE=$(jq -r --arg NAME "$BUILD_ARCHIVE_NAME" '.[] | select(.name == $NAME) | .mtime' "$TEMP_INDEX_BUILDS")
+    if [ -z "$REMOTE_BUILD_DATE" ] || [ "$REMOTE_BUILD_DATE" = "null" ]; then
+        echo "Impossible de trouver $BUILD_ARCHIVE_NAME dans l'index distant. Mise à jour forcée."
         UPDATE_BUILD=true
     else
-        echo "No update needed. Local build is up to date."
+        REMOTE_BUILD_TS=$(date -d "$REMOTE_BUILD_DATE" +%s)
+        echo "Remote build: $(date -d @$REMOTE_BUILD_TS)."
+        if [ "$REMOTE_BUILD_TS" -gt "$LOCAL_BUILD_TS" ]; then
+            UPDATE_BUILD=true
+        else
+            echo "No update needed. Local build is up to date."
+        fi
     fi
 fi
 
 if [ "$UPDATE_BUILD" = true ]; then
-    echo "Downloading new build..."
+    echo "Downloading new build ($BUILD_ARCHIVE_NAME)..."
     download_file "$TEMP_ZIP" "$URL_BUILD"
     echo "Downloaded new build."
 
@@ -107,14 +134,14 @@ if [ "$UPDATE_BUILD" = true ]; then
     echo "Build update completed."
 fi
 
-# Lancer directement l'exécutable Linux
+# Lancer l’exécutable si présent (utile sous Linux ; sous Windows on laisse juste l’exe prêt)
 if [ ! -f "$LOCAL_BUILD_EXE" ]; then
     echo "Erreur : l'exécutable du jeu n'a pas été trouvé : $LOCAL_BUILD_EXE"
     exit 1
 fi
 
-# S'assurer que l'exécutable a les droits d'exécution
-if [ ! -x "$LOCAL_BUILD_EXE" ]; then
+# S’assurer que l’exécutable Linux a le droit d’exécution
+if [ "$IS_WINDOWS" = false ] && [ ! -x "$LOCAL_BUILD_EXE" ]; then
     echo "Ajout du droit d'exécution à $LOCAL_BUILD_EXE"
     chmod +x "$LOCAL_BUILD_EXE"
     check_error "Impossible de rendre l'exécutable exécutable."
