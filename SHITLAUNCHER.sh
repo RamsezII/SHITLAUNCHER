@@ -22,9 +22,10 @@ LOCAL_INSTALL_DIR="$(dirname "$0")/SHITSTORM_install"
 LOCAL_BUILD_DIR=""
 # LOCAL_BUILD_EXE sera défini après le choix plateforme
 LOCAL_BUILD_EXE=""
+IS_WINDOWS=false
 
 # -------------------- Choix plateforme --------------------
-read -p "Choisir plateforme (w=Windows, l=Linux) : " choice
+read -p "Download Windows or Linux build? (w=Windows, l=Linux) : " choice
 case "$choice" in
   w|W)
     IS_WINDOWS=true
