@@ -111,37 +111,12 @@
     <h1>SHIT$TORM</h1>
 
     <a class="main-link" href="https://shitstorm.ovh/builds/linux/SHITSTORM.zip" download id="linux-link">
-        Linux version <img src="https://img.icons8.com/ios-filled/24/ffffff/linux.png" alt="Linux Icon">
+        Linux version: <img src="https://img.icons8.com/ios-filled/24/ffffff/linux.png" alt="Linux Icon">
     </a>
 
     <a class="main-link" href="https://shitstorm.ovh/builds/windows/SHITSTORM.zip" download id="windows-link">
-        Windows version <img src="https://img.icons8.com/ios-filled/24/ffffff/windows8.png" alt="Windows Icon">
+        Windows version: <img src="https://img.icons8.com/ios-filled/24/ffffff/windows8.png" alt="Windows Icon">
     </a>
-
-    <a class="main-link" href="https://shitstorm.ovh/builds/SHITSTORM.zip" download id="windows-link">
-        Both versions <img src="https://img.icons8.com/ios-filled/24/ffffff/linux.png" alt="Linux Icon"> + <img src="https://img.icons8.com/ios-filled/24/ffffff/windows8.png" alt="Windows Icon">
-    </a>
-
-    <script>
-
-        function detectOS() {
-            const platform = navigator.platform.toLowerCase();
-            const windowsLink = document.getElementById('windows-link');
-            const linuxLink = document.getElementById('linux-link');
-
-            if (platform.includes('win')) {
-                linuxLink.style.opacity = '0.5';
-            } else if (platform.includes('linux')) {
-                windowsLink.style.opacity = '0.5';
-            } else {
-                windowsLink.style.opacity = '0.5';
-                linuxLink.style.opacity = '0.5';
-            }
-        }
-
-        detectOS();
-
-    </script>
 
     <div class="social-icons">
         <a href="https://www.youtube.com/watch?v=SamXss2l6A4&list=PLrue6uD3-aIeftNBpOmyInBrovBJJGw-l" target="_blank">
